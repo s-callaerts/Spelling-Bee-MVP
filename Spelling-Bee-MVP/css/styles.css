@@ -17,15 +17,28 @@ body {
     width: 90%;
     height: 90%;
     background: linear-gradient(gold, orange);
-    margin: 5% auto 5% auto;
-    border-radius: 5px;
+    margin: 5% auto;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
 }
 
-button {
+form {
+    width: 90%;
+    height: 90%;
+    background: linear-gradient(gold, orange);
+    margin: 2% auto;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.fill-form {
+    height: 80%;
+}
+
+#login, #register {
     font-size: 2rem;
     width: 80%;
     padding: 20px;
