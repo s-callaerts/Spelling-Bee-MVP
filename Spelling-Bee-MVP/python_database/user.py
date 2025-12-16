@@ -3,7 +3,7 @@ class User :
         self.uid = generate_uid()
         self.name = name
         self.email = email
-        self.password = hash_the_password()
+        self.password = hash_the_password(password)
         self.grade = grade
         self.isTeacher = isTeacher
         
@@ -13,7 +13,11 @@ class User :
 
         return f"{timestamp}{rand_num}"
 
-    def __authorize_teacher(self, validationKey, isTeacher):
+    def _hash_the_password(password):
+        hashed_password = password.sha256()
+        return hashed_password
+
+    def _authorize_teacher(self, validationKey, isTeacher):
         if teacher_key == validationKey:
             self.isTeacher = True
 
