@@ -7,32 +7,28 @@
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-    <form>
+    <form id="registrationForm">
         <section class="fill-form">
             <label for="name">名前: </label>
             <input type="text" id="name" required>
-            <label for="username">ユーザー名: </label>
-            <input type="text" id="username" required>
             <label for="e-mail">メール: </label>
-            <input type="email" id="e-mail" required>
+            <input type="email" id="email" required>
             <label for="password">パスワード: </label>
             <input type="password" id="password" required>
             <label for="select">学年度:</label>
-            <select>
+            <select id="grade">
                 <option value="sho3/4">sho3/4</option>
                 <option value="sho5/6">sho5/6</option>
                 <option value="chuu1">chuu1</option>
                 <option value="chuu2">chuu2</option>
                 <option value="chuu3">chuu3</option>
             </select>
-            <label for="teacher-key">教員登録コード: </label>
-            <input type="text">
         </section>
         <section>
             <button type="reset">Reset</button>
-            <button type="send">Register</button>
+            <button type="submit" id="submit">Register</button>
         </section>
     </form>
-    <script src=""></script>
+    <script src="/js/auth.js"></script>
 </body>
 </html>

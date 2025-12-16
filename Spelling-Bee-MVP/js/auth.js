@@ -1,36 +1,30 @@
-//authorization for teacher
-const teachKey = "Kh43($^V";
+// grab info from register sheet and send to backend
 
-function validateKey () {
-    if (target === teachKey) {
-        teacherAuthority = true;
-    } else {
-        console.error("Teacher key invalid");
-        return;
-    }
-};
+const submitBtn = document.getElementById("submit");
+const registrationForm = document.getElementById("registrationForm");
 
-//signup
+registrationForm.addEventListener("submit", e.preventDefault());
 
-function signup () {
-    firebase.auth().createUserWithEmailAndPassword(email, password).then((userCredential) => {
-        const uid = userCredential.user.uid;
-        db.collection("users").doc(uid).set({
-            username: username,
-            role: role,
-            difficulty: null
-        });
+submitBtn.addEventListener("click", function () {
+    const data = {
+    name: document.getElementById("name").value,
+    password: document.getElementById("password").value,
+    email: document.getElementById("email"),
+    grade: document.getElementById("grade") 
+    };
+
+    const userdata = JSON.stringify(data);
+
+    const URL = ""
+
+    fetch(URL, {
+        method: POST,
+        headers: {"content-type": "application/json"},
+        body: userdata
     })
+    .then(response => response.json())
+    .then(data => console.log("success"))
     .catch((error) => {
-        console.error(error.message);
-    });
-}
-
-//login
-
-function login(email, password) {
-    firebase.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
-        //Redirect based on role
-        uid.role === teacher ? window.location.href="./dashboard_teacher.html" : window.location.href="./dashboard_student.html";
-    });
-}
+        console.error("Error", error);
+    })
+})
