@@ -5,10 +5,13 @@ cursor = conn.cursor()
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
+    uid INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE
-    )
+    email TEXT NOT NULL UNIQUE,
+    password VARCHAR(30) NOT NULL,
+    grade VARCHAR(15) NOT NULL,
+    isTeacher BOOLEAN
+    );
 ''')
 conn.commit()
 
@@ -19,7 +22,7 @@ try:
 except sqlite3 IntegrityError:
     print("Records already exist, skipping insertion")
 
-cursor.execute("SELECT + FROM users")
+cursor.execute("SELECT * FROM users")
 records = cursor.fetchall()
 print(records)
 
