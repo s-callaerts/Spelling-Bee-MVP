@@ -1,10 +1,11 @@
-class user (self, uid, name, email, password, grade, isTeacher = False):
-    def __init__(self):
+class User :
+    def __init__(self, uid, name, email, password, grade, isTeacher = False):
         self.uid = generate_uid()
         self.name = name
         self.email = email
         self.password = hash_the_password()
         self.grade = grade
+        self.isTeacher = isTeacher
         
     def generate_uid():
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -12,11 +13,12 @@ class user (self, uid, name, email, password, grade, isTeacher = False):
 
         return f"{timestamp}{rand_num}"
 
-    def __authorize_teacher(self, key, isTeacher):
-        self.isTeacher = True if key === validation_key else self.isTeacher = False
+    def __authorize_teacher(self, validationKey, isTeacher):
+        if teacher_key == validationKey:
+            self.isTeacher = True
 
     def save(self):
-        conn = sqlite3.connect(users.db)
+        conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
         
         cursor.execute("""
