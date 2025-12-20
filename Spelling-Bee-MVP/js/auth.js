@@ -5,7 +5,28 @@ const registrationForm = document.getElementById("registrationForm");
 
 registrationForm.addEventListener("submit", e.preventDefault());
 
+function validateName() {
+    const name = document.getElementById('name');
+    if (!name) {
+        console.error('名前が必要です。');
+        return;
+    }
+}
+
+function validateEmail() {
+    const email = document.getElementById('email');
+    const regexp = /\w+@\w+\./;
+
+    if (!regexp.test(email)) {
+        console.error('メールのフォーマットは間違っている。');
+        return;
+    }
+}
+
 submitBtn.addEventListener("click", function () {
+    validateName();
+    validateEmail();
+
     const data = {
     name: document.getElementById("name").value,
     password: document.getElementById("password").value,
