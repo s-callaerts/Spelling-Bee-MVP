@@ -1,6 +1,7 @@
 import random
 import sqlite3
 from datetime import datetime
+import re 
 
 class User :
     def __init__(self, uid, name, email, password, grade, isTeacher = False):
@@ -16,6 +17,17 @@ class User :
         rand_num = random.randint(1000, 9999)
 
         return f"{timestamp}{rand_num}"
+
+    def validate_name():
+        if name not is str:
+            raise TypeError('Invalid Name Type')
+            break
+        
+        if len(name) < 0:
+            raise ValueError('Name length must be greater than 0')
+            break
+        
+        nameregex = re.compile(r'[\u3040-\u309f]')  
 
     def save(self):
         conn = sqlite3.connect("users.db")
