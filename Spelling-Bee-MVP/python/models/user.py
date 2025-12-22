@@ -4,12 +4,15 @@ from datetime import datetime
 import re 
 import hashlib
 
+class SecurityError(Exception):
+    pass
+
 class User :
     def __init__(self, payload, isTeacher = False):
         self.uid = self.generate_uid()
         self.name = self.validate_name(payload['name'])
         self.email = self.validate_email(payload['email'])
-        self.password = payload['password']
+        self.password = self.validate_password(payload['password'])
         self.grade = self.validate_grade(payload['grade'])
         self.isTeacher = isTeacher
         
@@ -49,6 +52,18 @@ class User :
         
         print(f'valid email {test_email}')
         return test_email
+    
+    def validate_password(self, password):
+        if not isinstance(password, str):
+            raise TypeError('Invalid password type')
+        
+        if len(password) < 8:
+            raise SecurityError('パスワードは8文字以上にしてください')
+        
+        if not re.search(r'[.$@!#?0-9]', password):
+            raise SecurityError('パスワードに番号および(.$@!#?)文字のひとつを含めてください')
+        
+        return password
 
     def validate_grade(self, grade):
         if not isinstance(grade, str):

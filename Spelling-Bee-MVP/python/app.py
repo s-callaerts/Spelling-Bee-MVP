@@ -14,7 +14,7 @@ import os
 if __name__ == '__main__':
     payload = {'name': '服部太郎',
                'email': 'email@email.co.jp',
-               'password': '',
+               'password': 'ok4yokay!',
                'grade': '6'}
     
     try:
