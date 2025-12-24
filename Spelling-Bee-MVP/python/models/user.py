@@ -2,7 +2,7 @@ import random
 import sqlite3
 from datetime import datetime
 import re 
-import hashlib
+import secval.security as sec
 
 class SecurityError(Exception):
     pass
@@ -12,7 +12,7 @@ class User :
         self.uid = self.generate_uid()
         self.name = self.validate_name(payload['name'])
         self.email = self.validate_email(payload['email'])
-        self.password = self.validate_password(payload['password'])
+        self.password = sec.hash_password(self.validate_password(payload['password']))
         self.grade = self.validate_grade(payload['grade'])
         self.isTeacher = isTeacher
         
