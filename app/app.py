@@ -2,6 +2,10 @@
 import sqlite3
 import schemas.schema as schema
 import models.user as model
+import secval.security as sec
+import sys
+
+print(sys.path)
 
 #app = Flask(__SpellingBee__)
 #DB_name = "users.db"
@@ -23,3 +27,6 @@ if __name__ == '__main__':
         model.generate_user(data)
     except ValueError or TypeError:
         raise
+
+    print(sec.hash_password('password'))
+

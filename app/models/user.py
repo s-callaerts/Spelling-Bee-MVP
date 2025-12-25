@@ -2,7 +2,7 @@ import random
 import sqlite3
 from datetime import datetime
 import re 
-import secval.security as sec
+from secval import security as sec
 
 class SecurityError(Exception):
     pass
