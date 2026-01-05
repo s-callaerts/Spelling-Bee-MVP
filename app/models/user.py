@@ -98,4 +98,6 @@ def generate_user(payload):
           user password: {new_user.password}
           user grade: {new_user.grade}
           user isTeacher: {new_user.isTeacher}""")
-    return new_user
+    print(new_user)
+
+    return(new_user.uid, new_user.name, new_user.email, new_user.password, new_user.grade, new_user.isTeacher)

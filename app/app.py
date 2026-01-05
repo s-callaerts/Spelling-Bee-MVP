@@ -4,6 +4,7 @@ import schemas.schema as schema
 import models.user as model
 import secval.security as sec
 import sys
+import db
 
 print(sys.path)
 
@@ -24,9 +25,16 @@ if __name__ == '__main__':
     try:
         data = schema.RegistrationSchema.validate(payload)
         print(data)
-        model.generate_user(data)
+        user = model.generate_user(data)
+        print(user)
     except ValueError or TypeError:
         raise
 
-    print(sec.hash_password('password'))
+    db.db_setup()
+
+    #db.add_user(user)
+
+    sec.validate_login_password('ok4yokay!', db.login_user('服部太郎'))
+
+
 

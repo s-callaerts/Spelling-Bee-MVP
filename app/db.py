@@ -1,29 +1,58 @@
+#import psycopg2-binary
+#import os
 import sqlite3
+import routes as r
 
-conn = sqlite3.connect('app.db')
-cursor = conn.cursor()
+SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-    uid INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password VARCHAR(30) NOT NULL,
-    grade VARCHAR(15) NOT NULL,
-    isTeacher BOOLEAN
-    );
-''')
-conn.commit()
+def db_setup():
+    """con = psycopg2.connect(
+    dbname = "spellingbee",
+    user = os.getenv("DB_PASS),
+    password = os.getenv("DB_PASS")
+    host = os.getenv("DB_HOST")"""
+    con = sqlite3.connect('spellingbee.db')
+    cur = con.cursor()
 
-try:
-    cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", ("Alice", "alice@example.com"))
-    cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", ("John", "john@example.com"))
-    conn.commit()
-except sqlite3 IntegrityError:
-    print("Records already exist, skipping insertion")
+    for path in SQL_SCHEMA_FILES:
+        with open(path) as f:
+            cur.executescript(f.read())
+    
+    con.commit()
+    con.close()
 
-cursor.execute("SELECT * FROM users")
-records = cursor.fetchall()
-print(records)
+def add_user(values):
+    try:
+        con = sqlite3.connect("spellingbee.db")
+        cur = con.cursor()
+        sql = """INSERT INTO users(uid, username, email, password, grade, isTeacher)
+        VALUES (?,?,?,?,?,?)"""
 
-conn.close()
+        cur.execute(sql, values)
+        con.commit()
+        con.close()
+
+        print('Succesfully added user to db')
+        
+        return True
+    except sqlite3.Error as e:
+        print("Error adding user:", e)
+        return False
+    
+def login_user(login_username):
+    try:
+        con = sqlite3.connect("spellingbee.db")
+        cur = con.cursor()
+        sql = "SELECT username, password, isTeacher FROM users WHERE username = ?"
+
+        cur.execute(sql, (login_username,))
+        result = cur.fetchone()
+        con.close()
+        if result:
+            username, stored_password, isTeacher = result
+            return stored_password
+        else:
+            return None
+    except sqlite3.Error as e:
+        print("Error retrieving user:", e)
+        raise
