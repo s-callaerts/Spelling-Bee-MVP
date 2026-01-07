@@ -43,14 +43,14 @@ def login_user(login_username):
     try:
         con = sqlite3.connect("spellingbee.db")
         cur = con.cursor()
-        sql = "SELECT username, password, isTeacher FROM users WHERE username = ?"
+        sql = "SELECT uid, username, password, isTeacher FROM users WHERE username = ?"
 
         cur.execute(sql, (login_username,))
         result = cur.fetchone()
         con.close()
         if result:
-            username, stored_password, isTeacher = result
-            return stored_password
+            uid, username, stored_password, isTeacher = result
+            return (uid, stored_password, isTeacher)
         else:
             return None
     except sqlite3.Error as e:
