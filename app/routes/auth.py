@@ -3,8 +3,6 @@ from flask import (Blueprint, flash, g, redirect, render_template, request, sess
 import models.user as u
 import secval.security as sec
 import db
-import static
-import template
 
 authorization_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -16,7 +14,7 @@ def register():
         password = request.form['password']
         grade = request.form['grade']
 
-        db = db.db_setup()
+        db.db_setup()
         error = None
 
         new_user = u.generate_user(name, email, password, grade)
@@ -26,17 +24,15 @@ def register():
             error = 'Problem creating user'
 
         if error is None:
-            try:
-                db.add_user(new_user)
-            except db.IntegrityError:
-                error = f'User {name} is already registered.'
-        
+            registration_success = db.add_user(new_user)
+            if not registration_success:
+                error = f'There was a problem registering.'
             else:
                 return redirect(url_for("auth.login"))
             
         flash(error)
 
-    return render_template("auth/register.html")
+    return render_template("signup.html")
 
 @authorization_bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -45,13 +41,13 @@ def login():
         password = request.form['password']
         error = None
         
-        try:
-            uid, stored_password, isTeacher = db.login_user(username)
-        except db.sqlite3.Error as e:
-            error = e
-            print (error)
+        result = db.login_user(username)
         
-        if stored_password:
+        if not result:
+            error = 'Error retrieving user from database'
+            flash(error)
+        else:
+            uid, stored_password, isTeacher = result
             validation = sec.validate_login_password(password, stored_password)
 
             if validation:
@@ -66,4 +62,4 @@ def login():
             else:
                 error = 'Invalid password'
                 flash(error)
-                return render_template('login/html')
+                return render_template('login.html')

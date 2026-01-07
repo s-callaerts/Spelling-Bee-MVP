@@ -22,4 +22,4 @@ def validate_login_password(input_password, stored_password):
     bit_salt = bytes.fromhex(stored_salt)
     login_password = hashlib.pbkdf2_hmac(stored_algorithm, input_password.encode('utf-8'), bit_salt, int(stored_iterations), int(stored_klen))
 
-    return print(hmac.compare_digest(bytes.fromhex(test_password), login_password))
+    return hmac.compare_digest(bytes.fromhex(test_password), login_password)

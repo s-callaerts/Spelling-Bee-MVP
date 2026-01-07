@@ -19,7 +19,7 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from routes import auth
+    from . import auth
     app.register_blueprint(auth.authorization_bp)
 
     return app

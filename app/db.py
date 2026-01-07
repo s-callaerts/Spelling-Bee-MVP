@@ -21,6 +21,11 @@ def db_setup():
     con.commit()
     con.close()
 
+def get_db():
+    con = sqlite3.connect('spellingbee.db')
+    con.row_factory = sqlite3.Row
+    return con
+
 def add_user(values):
     try:
         con = sqlite3.connect("spellingbee.db")
