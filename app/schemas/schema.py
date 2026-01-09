@@ -18,3 +18,9 @@ class RegistrationSchema:
             'password': payload['password'],
             'grade': payload['grade']
             }
+
+class LoginSchema:
+    REQUIRED_FIELDS = {'username', 'password'}
+
+class SecurityError(Exception):
+    pass
