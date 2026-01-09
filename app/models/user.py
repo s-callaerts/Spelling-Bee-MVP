@@ -64,16 +64,14 @@ class User :
         return password
 
     def validate_grade(self, grade):
-        if not isinstance(grade, str):
+        if not isinstance(grade, int):
             raise ValueError('Wrong input, select a dropdown option')
 
-        test_grade = int(grade.strip())
-
-        if not 2 < test_grade < 7:
+        if not 2 < grade < 9:
             raise ValueError('This grade does not exist')
         
-        print(f'Valid grade, student is in grade {test_grade}')
-        return test_grade
+        print(f'Valid grade, student is in grade {grade}')
+        return grade
 
     def save(self):
         conn = sqlite3.connect("users.db")

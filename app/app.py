@@ -1,8 +1,8 @@
 #from Flask import Flask, request, jsonify, render_template
-import schemas.schema as schema
+"""import schemas.schema as schema
 import models.user as model
 import secval.security as sec
-import db
+import db"""
 
 """if __name__ == '__main__':
     payload = {'name': '服部太郎',

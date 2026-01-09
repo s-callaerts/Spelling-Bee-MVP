@@ -47,15 +47,10 @@ def register():
     except ValueError as e:
         return json_error(e, 400)
 
-    name = data['name']
-    email = data['email']
-    password = data['password']
-    grade = data['grade']
-
     db.db_setup()
 
     try:
-        new_user = u.generate_user(name, email, password, grade)
+        new_user = u.generate_user(data)
     except (ValueError, TypeError, schema.SecurityError) as e:
         return json_error(e, 400)
 

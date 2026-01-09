@@ -42,6 +42,8 @@ def add_user(values):
     except sqlite3.Error as e:
         print("Error adding user:", e)
         return False
+    finally:
+        con.close()
     
 def login_user(login_username):
     try:

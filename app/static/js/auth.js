@@ -2,12 +2,13 @@
 const submitBtn = document.getElementById('submit-btn');
 const loginBtn = document.getElementById('login-btn');
 
-function validateResponse(response) {
-    if (response.ok) {
-        return response.json()
-    } else {
-        throw new Error('Invalid JSON data');
+async function validateResponse(response) {
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) {
+        throw data;
     }
+    return data;
 }
 
 function postJSON(url, payload) {
@@ -18,7 +19,6 @@ function postJSON(url, payload) {
         },
         body: JSON.stringify(payload),
     })
-    .then(validateResponse)
 }
 
 function setResponse(message) {
@@ -26,18 +26,18 @@ function setResponse(message) {
 }
 
 function reroute(url) {
-    setTimeout(() => windcow.location.href = url, 2000);
+    setTimeout(() => window.location.href = url, 2000);
 }
 
 function handleLoginData(data) {
     if(data.status == 'teacher') {
         console.log('Success', data.message);
         setResponse(data.message);
-        reroute('dashboard_teacher.html');
+        reroute('/dashboard_teacher');
     } else if (data.status == 'student') {
         console.log('Success', data.message);
         setResponse(data.message);
-        reroute('dashboard_student.html');
+        reroute('/dashboard_student');
     } else {
         console.error('error', data);
         setResponse(data.message);
@@ -46,18 +46,20 @@ function handleLoginData(data) {
 }
 
 function handleSignupData(data) {
+    console.log('data put into handlesignup:', data);
     if (data.status == 'success') {
         console.log('success', data);
         setResponse(data.message);
-        reroute('login.html')
+        reroute('/login_page')
     } else {
         console.error('error', data);
         setResponse(data.message);
-        return
+        throw new Error(`What went wrong: ${data}`)
     }
 }
 
 function attemptSignup() {
+    console.log('signup attempt fired');
     const userName = validateName(document.getElementById('username').value);
     const userEmail = validateEmail(document.getElementById('email').value);
     const userPassword = validatePassword(document.getElementById('password').value);
@@ -70,27 +72,35 @@ function attemptSignup() {
         grade: userGrade
     };
 
-    postJSON('/signup', dataToSend)
-    .then(data => handleSignupData(data))
+    postJSON('/auth/signup', dataToSend)
+    .then(validateResponse)
+    .then(handleSignupData)
     .catch((error) => {
         console.error('Error:', error);
         setResponse('An error occurred.');
     });
 }
 
-if (submitBtn) {
-    submitBtn.addEventListener('click', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registrationForm');  
+    
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', (event) => {
         event.preventDefault();
+        console.log('form submit intercepted');
         attemptSignup();
     })
-}
+});
 
 function attemptLogin() {
     const name = validateName(document.getElementById('name').value);
     const password = validatePassword(document.getElementById('password').value)
     const dataToSend = {username: name, password: password};
 
-    postJSON('/login', dataToSend)
+    postJSON('/auth/login', dataToSend)
     .then(data => handleLoginData(data))
     .catch((error) => {
         console.error('Error:', error);
@@ -106,7 +116,7 @@ if (loginBtn) {
 }
 
 function validateName(name) {
-    const japaneseCheck = /^[\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Han}\u3005\u3007\u3000-\u303F]+$/u;
+    const japaneseCheck = /^[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}\u3005\u3007\u3000-\u303F]+$/u;
     if (!name) {
         console.error('need a name');
         return
@@ -118,33 +128,32 @@ function validateName(name) {
 }
 
 function validateEmail(email) {
-    const emailRegex = /\w+@\w+.\[a-z]+/i;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
     if (!email) {
-        console.error('need email');
-        return;
+        throw new Error('need email');
     } else if (!emailRegex.test(email)) {
-        console.error('wrong format');
-        return;
+        throw new Error('wrong format');
     }
     return email;
 }
 
 function validatePassword(password) {
-    const passwordRegex = /.@\$#!\?[0-9]/;
+    const passwordRegex = /(?=.*[0-9])(?=.*[@#$!.?])/;
     if (!password) {
-        console.error('need password');
-        return;
+        throw new Error('need password');
     } else if (!passwordRegex.test(password)) {
-        console.error('include at least one number and special symbol (? @ # $ . !)');
-        return;
-    } else if (password.length > 8) {
-        console.error('password should be at least 8 characters');
-        return;
+        throw new Error('include at least one number and special symbol (? @ # $ . !)');
+    } else if (password.length < 8) {
+        throw new Error('password should be at least 8 characters');
     }
     return password;
 }
 
 function validateGrade(grade) {
     console.log(typeof grade);
-    return grade;
+    const parsed = parseInt(grade, 10);
+    if (Number.isNaN(parsed)) {
+        throw new Error('wrong grade')
+    }
+    return parsed;
 }

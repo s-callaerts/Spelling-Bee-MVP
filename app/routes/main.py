@@ -7,6 +7,14 @@ main_bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
+@main_bp.route('/login_page')
+def login_page():
+    return render_template('login.html')
+
+@main_bp.route('/signup_page')
+def signup_page():
+    return render_template('signup.html')
+
 @main_bp.route('/dashboard_student')
 @login_required
 def dashboard():
