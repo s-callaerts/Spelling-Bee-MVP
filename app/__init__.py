@@ -19,7 +19,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import auth
+    from .routes import auth, main
     app.register_blueprint(auth.authorization_bp)
+    app.register_blueprint(main.main_bp)
 
     return app

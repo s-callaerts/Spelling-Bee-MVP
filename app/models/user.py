@@ -2,8 +2,8 @@ import random
 import sqlite3
 from datetime import datetime
 import re 
-from secval import security as sec
-from schemas.schema import SecurityError
+from app.secval import security as sec
+from app.schemas.schema import SecurityError
 
 class User :
     def __init__(self, payload, isTeacher = False):

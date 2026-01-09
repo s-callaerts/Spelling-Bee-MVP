@@ -1,7 +1,6 @@
 #import psycopg2-binary
 #import os
 import sqlite3
-import routes as r
 
 SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
 

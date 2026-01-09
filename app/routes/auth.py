@@ -1,9 +1,9 @@
 import functools
 from flask import (Blueprint, render_template, request, session, url_for, jsonify, redirect)
-import models.user as u
-import secval.security as sec
-import db
-import schemas.schema as schema
+import app.models.user as u
+import app.secval.security as sec
+import app.db as db
+import app.schemas.schema as schema
 import sqlite3
 
 authorization_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -40,7 +40,7 @@ def json_success(status, message):
     return jsonify({'status': status, 'message': message}), 200
 
 
-@authorization_bp.route('/register', methods=('POST'))
+@authorization_bp.route('/signup', methods=['POST'])
 def register():
     try:
         data = schema.RegistrationSchema.validate(request.get_json())
@@ -65,7 +65,7 @@ def register():
     else:
         return json_error('There was a problem registering the user', 409)
 
-@authorization_bp.route('/login', methods=('POST'))
+@authorization_bp.route('/login', methods=['POST'])
 def login():
     try:
         data = schema.LoginSchema.validate(
