@@ -1,5 +1,7 @@
 from flask import Flask 
 import os
+import db
+#import psycopg2
 
 def create_app(test_config=None):
     app = Flask(__name__,
@@ -8,6 +10,12 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path,'spellingbee.sqlite'),
     )
+
+    """con = psycopg2.connect(
+    DB_NAME = "os.getenv(DB_NAME)",
+    DB_USER = os.getenv("DB_USER),
+    DB_PASS = os.getenv("DB_PASS")
+    DB_HOST = os.getenv("DB_HOST")"""
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
@@ -22,5 +30,7 @@ def create_app(test_config=None):
     from .routes import auth, main
     app.register_blueprint(auth.authorization_bp)
     app.register_blueprint(main.main_bp)
+
+    db.db_setup(app.config['DATABASE'])
 
     return app

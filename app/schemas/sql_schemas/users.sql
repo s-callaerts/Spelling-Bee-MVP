@@ -11,3 +11,10 @@ CREATE TABLE IF NOT EXISTS users(
     --isTeacher BOOLEAN NOT NULL,
     isTeacher INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS words(
+    grade INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    japanese TEXT NOT NULL,
+    english TEXT NOT NULL
+);

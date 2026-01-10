@@ -1,21 +1,30 @@
 #import psycopg2-binary
 #import os
 import sqlite3
+import json
 
 SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
 
-def db_setup():
-    """con = psycopg2.connect(
-    dbname = "spellingbee",
-    user = os.getenv("DB_PASS),
-    password = os.getenv("DB_PASS")
-    host = os.getenv("DB_HOST")"""
-    con = sqlite3.connect('spellingbee.db')
+def db_setup(db_path):
+    con = sqlite3.connect(db_path)
     cur = con.cursor()
 
     for path in SQL_SCHEMA_FILES:
         with open(path) as f:
             cur.executescript(f.read())
+
+    with open('words.json', 'r', 'encoding=utf-8') as f:
+        data = json.load(f)
+
+        grade = data['grade']
+        chapter = data['chapter']
+        words = data['words']
+
+        for word in words:
+            cur.execute(
+                'INSERT INTO words(grade, chapter, japanese, english) VALUES (?, ?, ?, ?)',
+                (grade, chapter, word['jap'], word['eng'])
+                )
     
     con.commit()
     con.close()
