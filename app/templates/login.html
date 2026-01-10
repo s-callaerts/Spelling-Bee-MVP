@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="/static/css/styles.css" >
 </head>
 <body>
-    <form class="login-form" method="get">
+    <div id="response_message"></div>
+    <form id="loginForm">
         <section class="fill-form">
-            <label>メール: </label>
-            <input id="e-mail" type="text" placeholder="taro.hatori@email.com">
+            <label>Name: </label>
+            <input id="name" type="text" placeholder="taro hatori">
             <label>パスワード: </label>
             <input id="password" type="password">
         </section>
@@ -19,6 +20,6 @@
             <button type="submit" id="login-btn">ログイン</button>
         </section>
     </form>
-    <script src="/app/static/js/auth.js"></script>
+    <script src="{{url_for('static', filename='js/auth.js')}}"></script>
 </body>
 </html>

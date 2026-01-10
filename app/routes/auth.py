@@ -69,7 +69,7 @@ def login():
     except ValueError as e:
         return json_error(e, 400)
     
-    username = data['username']
+    username = data['name']
     password = data['password']
 
     try:

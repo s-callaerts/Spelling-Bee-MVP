@@ -12,6 +12,7 @@ async function validateResponse(response) {
 }
 
 function postJSON(url, payload) {
+    console.log(payload);
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -41,7 +42,7 @@ function handleLoginData(data) {
     } else {
         console.error('error', data);
         setResponse(data.message);
-        return
+        return;
     }
 }
 
@@ -82,37 +83,41 @@ function attemptSignup() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registrationForm');  
+    const form = document.getElementById('registrationForm'); 
+    const loginForm = document.getElementById('loginForm'); 
     
     if (!form) {
-        return;
-    }
-
-    form.addEventListener('submit', (event) => {
+        if (!loginForm) {
+            return;
+        } else {
+            loginForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                console.log('login submit intercepted')
+                attemptLogin();
+            });
+        }
+    } else {
+        form.addEventListener('submit', (event) => {
         event.preventDefault();
         console.log('form submit intercepted');
         attemptSignup();
     })
+}
 });
+
 
 function attemptLogin() {
     const name = validateName(document.getElementById('name').value);
     const password = validatePassword(document.getElementById('password').value)
-    const dataToSend = {username: name, password: password};
+    const dataToSend = {name: name, password: password};
 
     postJSON('/auth/login', dataToSend)
-    .then(data => handleLoginData(data))
+    .then(validateResponse)
+    .then(handleLoginData)
     .catch((error) => {
         console.error('Error:', error);
         setResponse('Something went wrong');
     });
-}
-
-if (loginBtn) {
-    loginBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        attemptLogin();
-    })
 }
 
 function validateName(name) {
