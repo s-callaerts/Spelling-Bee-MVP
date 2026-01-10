@@ -1,4 +1,5 @@
 class BaseSchema:  
+    """schema for validating received JSON data on login and registration"""
     REQUIRED_FIELDS = set()
 
     @classmethod
@@ -15,10 +16,13 @@ class BaseSchema:
         return {field: payload[field] for field in cls.REQUIRED_FIELDS}
     
 class RegistrationSchema(BaseSchema):
+    """registration specific"""
     REQUIRED_FIELDS = {'name', 'email', 'password', 'grade'}
 
 class LoginSchema(BaseSchema):
+    """login specific"""
     REQUIRED_FIELDS = {'name', 'password'}
 
 class SecurityError(Exception):
+    """custom error"""
     pass

@@ -9,6 +9,7 @@ import sqlite3
 authorization_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 def login_required(f):
+    """check session uid to prevent unauthorized access"""
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if 'uid' not in session:
@@ -17,6 +18,7 @@ def login_required(f):
     return decorated
 
 def teacher_required(f):
+    """check session user status for teacher-specific dashboard"""
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if 'uid' not in session or not session.get('authority'):
@@ -25,6 +27,7 @@ def teacher_required(f):
     return decorated
 
 def check_authority(f):
+    """double check of authority for teacher-specific functions"""
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         if not session.get('authority'):
