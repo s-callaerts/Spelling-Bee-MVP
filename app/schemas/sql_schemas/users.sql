@@ -1,5 +1,6 @@
 --CREATE DATABASE IF NOT EXISTS spellingbee;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS words;
 --drop table only for testing, remove on deployment
 
 CREATE TABLE IF NOT EXISTS users(

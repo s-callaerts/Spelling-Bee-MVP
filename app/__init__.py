@@ -1,6 +1,6 @@
 from flask import Flask 
 import os
-import db
+from .db import db_setup, retrieve_words
 #import psycopg2
 
 def create_app(test_config=None):
@@ -31,6 +31,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.authorization_bp)
     app.register_blueprint(main.main_bp)
 
-    db.db_setup(app.config['DATABASE'])
+    db_setup(app.config['DATABASE'])
+    retrieve_words(app.config['DATABASE'], 3, 1)
 
     return app

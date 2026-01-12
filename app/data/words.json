@@ -2,7 +2,7 @@
     "grade": 3,
     "chapter": 1,
     "words": [
-        {"jap": "", "eng": "blue"},
-        {"jap": "", "eng": "red"}
+        {"jap": "青", "eng": "blue"},
+        {"jap": "赤", "eng": "red"}
     ]
 }

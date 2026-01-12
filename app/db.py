@@ -1,8 +1,10 @@
 #import psycopg2-binary
-#import os
+import os
 import sqlite3
 import json
 
+BASE_DIR = os.getcwd()
+WORDS_PATH = os.path.join(BASE_DIR, 'app', 'data', 'words.json')
 SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
 
 def db_setup(db_path):
@@ -13,7 +15,7 @@ def db_setup(db_path):
         with open(path) as f:
             cur.executescript(f.read())
 
-    with open('words.json', 'r', 'encoding=utf-8') as f:
+    with open(WORDS_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
         grade = data['grade']
@@ -71,3 +73,48 @@ def login_user(login_username):
     except sqlite3.Error as e:
         print("Error retrieving user:", e)
         raise
+
+def retrieve_words(db_path, grade, chapter):
+    try:
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+        sql = "SELECT japanese, english FROM words WHERE grade = ? AND chapter = ?"
+
+        cur.execute(sql, (grade, chapter))
+        result = cur.fetchall()
+        print(result)
+        con.close()
+
+        if result:
+            package = []
+            for value in result:
+                jap, eng = value
+                package.append(dict(japanese=jap, english=eng))
+            
+            print(package)
+        return package
+    
+    except sqlite3.Error as e:
+        print('Problem retrieving data:', e)
+        raise
+
+def record_score(db_path, dictionary):
+    try:
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+        sql = """INSERT INTO test_history(uid, grade, chapter, english, user_input, correct, total)
+    VALUES(?,?,?,?,?,?,?)"""
+        
+        for entry in dictionary:
+            cur.execute(sql, (entry['uid'], 
+                              entry['grade'], 
+                              entry['chapter'], 
+                              entry['english'], 
+                              entry['user_input'],
+                              entry['correct'],
+                              entry['total']))
+            
+    except sqlite3.Error as e:
+        print('error:', e)
+        raise
+
