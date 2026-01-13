@@ -41,6 +41,8 @@
 **Flutter（予定）** | Dart, Flutter | クロスプラットフォーム対応 (Web/iOS/Android) 
 **その他** | 非同期JS | フロントとバックのデータ同期、UX改善 
 
+認証・認可ロジックはすべて auth ブループリントに集中させており、各機能ブループリント（テスト、クラスルームなど）はビジネスロジックのみに専念しています。この分離により、保守性が高く、スケーラブルな API 設計を実現しています。
+
 ---
 
 ## プロジェクトで得た知見
@@ -122,6 +124,8 @@ In the future, the application may expand beyond individual classes to include *
 **Frontend** | HTML, CSS, JavaScript | Dashboard, test screens, registration pages 
 **Flutter (planned)** | Dart, Flutter | Cross-platform frontend (Web / iOS / Android) 
 **Other** | Async JavaScript, REST API integration | Frontend-backend data synchronization, UX improvements 
+
+All authentication and authorization logic is centralized in the auth blueprint, while feature blueprints focus on business logic. This separation ensures secure, maintainable, and scalable API design.
 
 ---
 
