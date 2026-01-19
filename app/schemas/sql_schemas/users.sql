@@ -28,16 +28,17 @@ CREATE TABLE IF NOT EXISTS test_history(
     attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
     uid TEXT NOT NULL REFERENCES users(uid),
     timestamp VARCHAR(60) NOT NULL,
+    last_activity VARCHAR(60) NOT NULL,
     grade INTEGER NOT NULL,
     chapter INTEGER NOT NULL,
-    score INTEGER NOT NULL
+    score INTEGER NOT NULL,
+    status TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS test_content(
     attempt_id INTEGER REFERENCES test_history(attempt_id),
-    japanese TEXT NOT NULL,
-    english TEXT NOT NULL,
+    japanese TEXT NOT NULL REFERENCES words(japanese),
+    english TEXT NOT NULL REFERENCES words(english),
     input TEXT NOT NULL,
-    is_correct INTEGER NOT NULL,
-    status TEXT NOT NULL,
+    is_correct INTEGER NOT NULL
 );

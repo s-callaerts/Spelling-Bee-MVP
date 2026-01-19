@@ -36,6 +36,7 @@ def get_db():
     con.row_factory = sqlite3.Row
     return con
 
+#Register and Login functions
 def add_user(values):
     try:
         con = sqlite3.connect("spellingbee.db")
@@ -74,6 +75,7 @@ def login_user(login_username):
         print("Error retrieving user:", e)
         raise
 
+#Test functions
 def retrieve_words(db_path, grade, chapter):
     try:
         con = sqlite3.connect(db_path)
@@ -86,35 +88,65 @@ def retrieve_words(db_path, grade, chapter):
         con.close()
 
         if result:
-            package = []
+            test_content = []
             for value in result:
                 jap, eng = value
-                package.append(dict(japanese=jap, english=eng))
+                test_content.append(dict(japanese=jap, english=eng))
             
-            print(package)
-        return package
+            print(test_content)
+        return test_content
     
     except sqlite3.Error as e:
         print('Problem retrieving data:', e)
         raise
 
-def record_score(db_path, dictionary):
+def add_attempt(db_path, values):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    sql = """INSERT INTO test_history(uid, timestamp, last_activity, grade, chapter, score, status) VALUES (?, ?, ?, ?, ?, ?, ?);"""
+
     try:
-        con = sqlite3.connect(db_path)
-        cur = con.cursor()
-        sql = """INSERT INTO test_history(uid, grade, chapter, english, user_input, correct, total)
+        cur.execute(sql, values)
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.Error as e:
+        print("Error adding attempt:", e)
+        raise
+
+#keep track of score and status
+def update_attempt(db_path, attempt_id, last_activity, score, status):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    sql = """UPDATE test_history
+    SET last_activity = ?, score = ?, status = ?
+    WHERE attempt_id = ?;"""
+        
+    try:
+        cur.execute(sql, (last_activity, score, status, attempt_id))
+        con.commit()
+        con.close()
+        return True
+    
+    except sqlite3.Error as e:
+        print("Error updating attempt:", e)
+        raise
+
+def update_content(db_path, entry):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    sql = """INSERT INTO test_content(uid, grade, chapter, english, user_input, correct, total)
     VALUES(?,?,?,?,?,?,?)"""
         
-        for entry in dictionary:
-            cur.execute(sql, (entry['uid'], 
-                              entry['grade'], 
-                              entry['chapter'], 
-                              entry['english'], 
-                              entry['user_input'],
-                              entry['correct'],
-                              entry['total']))
-            
+    try:
+        cur.execute(sql, entry)
+        con.commit()
+        con.close()
+        return True
+        
     except sqlite3.Error as e:
         print('error:', e)
         raise
+
+
 
