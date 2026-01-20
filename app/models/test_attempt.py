@@ -4,8 +4,8 @@ import random
 import db
 
 class Test_attempt :
-    def __init__(self, grade, chapter, package, score = 0, status = 'active'):
-        self.uid = session['uid']
+    def __init__(self, uid, grade, chapter, package, score = 0, status = 'active'):
+        self.uid = uid
         self.status = status
         self.timestamp = datetime.now().strftime("%Y%m%D%H%M%S")
         self.last_activity = self.timestamp
