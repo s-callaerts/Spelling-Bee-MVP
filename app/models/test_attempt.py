@@ -1,13 +1,14 @@
 from flask import session, jsonify
 from datetime import datetime
 import random
+import db
 
 class Test_attempt :
     def __init__(self, grade, chapter, package, score = 0, status = 'active'):
-        #self.uid = session['uid']
+        self.uid = session['uid']
         self.status = status
         self.timestamp = datetime.now().strftime("%Y%m%D%H%M%S")
-        self.last_activity = datetime.now().strftime("%Y%m%D%H%M%S")
+        self.last_activity = self.timestamp
         self.expires_at = None
         self.grade = grade
         self.chapter = chapter
@@ -15,6 +16,31 @@ class Test_attempt :
         self.word_list = package
         random.shuffle(self.word_list)
         self.current_word = None
+        self.attempt_id = None
+
+    @property
+    def last_activity(self):
+        return self.last_activity
+    @last_activity.setter
+    def last_activity(self):
+        self.last_activity = datetime.now().strftime("%Y%m%D%H%M%S")
+
+    def start_test(self):
+        attempt_id = db.add_attempt(session['db_path'], (self.uid, self.timestamp, self.last_activity, self.grade, self.chapter, self.score, self.status))
+        
+        if attempt_id:
+            self.attempt_id = attempt_id
+            return True
+        else:
+            return False
+
+    def timeout(self):
+        self.expires_at = self.last_activity + 20 * 60
+        if self.expires_at < datetime.now().strftime("%Y%m%D%H%M%S"):
+            self.status = 'expired'
+
+        db.close_attempt(session['db_path'], (self.score, self.status))
+
         
     def next_word(self):
 
@@ -23,18 +49,20 @@ class Test_attempt :
             return self.current_word['japanese']
         else:
             self.current_word = None
+            self.status = 'complete'
+            db.close_attempt(session['db_path'], (self.score, self.status, self.attempt_id))
             return 'Test Complete!'
 
     
     def validate_answer(self, input):
         if self.current_word['english'] == input:
             self.score += 1
-            #setter last_activity
-            #write to db here
+            self.last_activity()
+            db.update_content(session['db_path'], (self.attempt_id, self.current_word['japanese'], self.current_word['english'], input, 1))
             return True
         else:
-            #setter last_activity
-            #write to db
+            self.last_activity()
+            db.update_content(session['db_path'] (self.attempt_id, self.current_word['japanese'], self.current_word['english'], input, 0))
             return False, self.current_word['english']
 
 

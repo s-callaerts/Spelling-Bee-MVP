@@ -100,18 +100,29 @@ def retrieve_words(db_path, grade, chapter):
         print('Problem retrieving data:', e)
         raise
 
-def add_attempt(db_path, values):
+def add_attempt(db_path, values: tuple):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
     sql = """INSERT INTO test_history(uid, timestamp, last_activity, grade, chapter, score, status) VALUES (?, ?, ?, ?, ?, ?, ?);"""
 
     try:
         cur.execute(sql, values)
-        con.commit()
-        con.close()
-        return True
     except sqlite3.Error as e:
         print("Error adding attempt:", e)
+        raise
+    
+    uid, timestamp, *rest = values
+
+    try:
+        sql2 = """SELECT attempt_id FROM test_history WHERE uid = ? AND timestamp = ?;"""
+        cur.execute(sql2, (uid, timestamp))
+        attempt_id = cur.fetchone()[0]
+        con.commit()
+        con.close()
+
+        return attempt_id
+    except sqlite3.Error as e:
+        print("Error retrieving id:", e)
         raise
 
 #keep track of score and status
@@ -132,11 +143,28 @@ def update_attempt(db_path, attempt_id, last_activity, score, status):
         print("Error updating attempt:", e)
         raise
 
+def close_attempt(db_path, values):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    sql = """UPDATE test_history
+    SET score = ?, status = ?
+    WHERE attempt_id = ?;"""
+        
+    try:
+        cur.execute(sql, values)
+        con.commit()
+        con.close()
+        return True
+        
+    except sqlite3.Error as e:
+        print('error:', e)
+        raise
+
 def update_content(db_path, entry):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
-    sql = """INSERT INTO test_content(uid, grade, chapter, english, user_input, correct, total)
-    VALUES(?,?,?,?,?,?,?)"""
+    sql = """INSERT INTO test_content(attempt_id, japanese, english, input, is_correct)
+    VALUES(?,?,?,?,?)"""
         
     try:
         cur.execute(sql, entry)
