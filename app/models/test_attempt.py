@@ -18,6 +18,10 @@ class Test_attempt :
         self.current_word = None
         self.attempt_id = None
 
+    @classmethod 
+    def load_attempt(cls, attempt_id):
+        pass
+
     @property
     def last_activity(self):
         return self._last_activity
@@ -36,7 +40,7 @@ class Test_attempt :
 
     def timeout(self):
         self.expires_at = self.last_activity + 20 * 60
-        if self.expires_at < datetime.now().strftime("%Y%m%D%H%M%S"):
+        if self.expires_at < datetime.utcnow():
             self.status = 'expired'
 
         db.close_attempt(session['db_path'], (self.score, self.status))
