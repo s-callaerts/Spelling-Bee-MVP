@@ -19,13 +19,14 @@ def get_test_words():
     chapter = data['chapter']
     
     package = db.retrieve_words(grade, chapter)
+    #remember to create attempt object here and call next word
 
     if package:
         return jsonify(package)
     else:
         return 'Something went wrong retrieving the words'
-    
-test_bp.route('/result')
+
+test_bp.route('/result', methods=['POST'])
 @login_required
 def record_score():
     try:
