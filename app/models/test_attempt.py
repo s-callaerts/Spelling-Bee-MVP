@@ -7,8 +7,8 @@ class Test_attempt :
     def __init__(self, uid, grade, chapter, package, score = 0, status = 'active'):
         self.uid = uid
         self.status = status
-        self.timestamp = datetime.now().strftime("%Y%m%D%H%M%S")
-        self.last_activity = self.timestamp
+        self.timestamp = datetime.utcnow()
+        self._last_activity = self.timestamp
         self.expires_at = None
         self.grade = grade
         self.chapter = chapter
@@ -20,10 +20,10 @@ class Test_attempt :
 
     @property
     def last_activity(self):
-        return self.last_activity
+        return self._last_activity
     @last_activity.setter
-    def last_activity(self):
-        self.last_activity = datetime.now().strftime("%Y%m%D%H%M%S")
+    def last_activity(self, value = None):
+        self._last_activity = value or datetime.utcnow()
 
     def start_test(self):
         attempt_id = db.add_attempt(session['db_path'], (self.uid, self.timestamp, self.last_activity, self.grade, self.chapter, self.score, self.status))
