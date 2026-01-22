@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users(
 );
 
 CREATE TABLE IF NOT EXISTS words(
+    word_id INTEGER PRIMARY KEY AUTOINCREMENT,
     grade INTEGER NOT NULL,
     chapter INTEGER NOT NULL,
     japanese TEXT NOT NULL UNIQUE,
@@ -25,9 +26,9 @@ CREATE TABLE IF NOT EXISTS words(
 );
 
 CREATE TABLE IF NOT EXISTS test_history(
-    attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    test_id INTEGER PRIMARY KEY AUTOINCREMENT,
     uid TEXT NOT NULL REFERENCES users(uid),
-    timestamp VARCHAR(60) NOT NULL,
+    started_at VARCHAR(60) NOT NULL,
     last_activity VARCHAR(60) NOT NULL,
     grade INTEGER NOT NULL,
     chapter INTEGER NOT NULL,
@@ -36,9 +37,11 @@ CREATE TABLE IF NOT EXISTS test_history(
 );
 
 CREATE TABLE IF NOT EXISTS test_content(
-    attempt_id INTEGER REFERENCES test_history(attempt_id),
-    japanese TEXT NOT NULL REFERENCES words(japanese),
-    english TEXT NOT NULL REFERENCES words(english),
+    question_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    test_id INTEGER REFERENCES test_history(test_id),
+    word_id INTEGER REFERENCES words(word_id),
     input TEXT NOT NULL,
-    is_correct INTEGER NOT NULL
+    is_correct INTEGER NOT NULL,
+    answered INTEGER NOT NULL
+    --answered BOOLEAN NOT NULL
 );
