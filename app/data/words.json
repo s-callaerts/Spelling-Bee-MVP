@@ -3,6 +3,9 @@
     "chapter": 1,
     "words": [
         {"jap": "青", "eng": "blue"},
-        {"jap": "赤", "eng": "red"}
+        {"jap": "赤", "eng": "red"},
+        {"jap": "黄", "eng": "yellow"},
+        {"jap": "緑", "eng": "green"},
+        {"jap": "本", "eng": "book"}
     ]
 }

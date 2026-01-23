@@ -211,7 +211,7 @@ def revive_attempt(test_id):
     cur = con.cursor()
 
     def get_question(test_id):
-        sql = """SELECT test_content.question_id, words.japanese, words.english FROM test_content 
+        sql = """SELECT test_content.word_id, words.japanese, words.english FROM test_content 
         JOIN words ON test_content.word_id = words.word_id 
         WHERE test_content.test_id = :test_id AND test_content.answered = 0;"""
 

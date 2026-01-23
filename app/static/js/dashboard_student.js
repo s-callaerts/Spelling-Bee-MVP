@@ -9,6 +9,7 @@ const answer = document.getElementById("answer");
 const submitAnswerBtn = document.getElementById("submit-answer");
 const noticeBox = document.getElementById("notice-box");
 const closeNoticeBtn = document.getElementById("close-notice");
+const noticeMessage = document.getElementById("message");
 
 makeTestBtn.addEventListener("click", () => {
     makeTestBtn.classList.toggle("hidden");
@@ -86,7 +87,7 @@ function postJSON(url, payload) {
 
 function setNoticeBox(message) {
     noticeBox.classList.remove("hidden");
-    noticeBox.textContent = message;
+    noticeMessage.textContent = message;
 }
 
 function reset() {
