@@ -32,6 +32,11 @@ startTestBtn.addEventListener("click", () => {
 })
 
 submitAnswerBtn.addEventListener("click", () => {
+    if(answer.disabled) {return;}
+
+    answer.disabled = true;
+    submitAnswerBtn.disabled = true;
+
     const payload = {answer: answer.value};
     postJSON('/answer', (payload))
     .then(validateResponse)
@@ -61,9 +66,30 @@ submitAnswerBtn.addEventListener("click", () => {
     });
 })
 
+answer.addEventListener("keydown", (e) => {
+    if (e === "Enter") {
+        if(!noticeBox.classList.contains("hidden")) return;
+        if(answer.disabled) return;
+        
+        e.preventDefault();
+        submitAnswerBtn.click();
+    }
+});
+
 closeNoticeBtn.addEventListener("click", () => {
     noticeBox.classList.toggle("hidden");
+
+    answer.disabled = false;
+    submitAnswerBtn.disabled = false;
+    answer.focus();
 })
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !noticeBox.classList.contains("hidden")) {
+        e.preventDefault();
+        closeNoticeBtn.click();
+    }
+});
 
 async function validateResponse(response) {
     const data = await response.json();
