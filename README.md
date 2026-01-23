@@ -6,6 +6,47 @@
 
 また、フロントエンドは現状HTML/CSS/JavaScriptで開発していますが、将来的には **Flutterを使用したクロスプラットフォーム対応** を予定しており、WebだけでなくiOS・Androidアプリとしても利用できる設計を目指しています。
 
+## セットアップ/Setup
+
+簡単なデモまで作成しています。  
+ローカル環境で動作を確認できますので、ぜひお試しください。  
+セットアップ手順は以下の通りです。
+
+A small demo is ready for use.
+Feel free to try it out in a local environment.
+Setup instructions follow.
+
+---
+
+### 1. リポジトリをクローン/Clone the repo
+
+```bash
+git clone <repository-url>
+cd <repository-name>
+#仮想環境を作成/create the virtual environment
+python -m venv venv
+#Windows
+venv\Scripts\activate
+#MacOS/Linux
+source venv/bin/activate
+
+#依存関係のインストール/Install requirements
+pip install -r requirements.txt
+
+#アプリの起動/run the app
+flask run
+```
+
+ブラウザーでアクセス： http://127.0.0.1:5000
+デモ用ユーザーでログイン可能です。
+- 名前：たろう
+- パスワード：testPassword8?
+
+Acces the app by pasting the link in your browser: http://127.0.0.1:5000
+A demo user is preregistered.
+- name:たろう
+- password: testPassword8?
+
 ---
 
 ## 目的
