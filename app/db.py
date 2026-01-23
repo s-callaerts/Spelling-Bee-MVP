@@ -2,14 +2,18 @@
 import os
 import sqlite3
 import json
+from flask import current_app
 
 BASE_DIR = os.getcwd()
 WORDS_PATH = os.path.join(BASE_DIR, 'app', 'data', 'words.json')
 SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
-db_path = os.getenv('DATABASE', 'spellingbee.db')
+
+def get_db():
+    con = sqlite3.connect(current_app.config['DATABASE'])
+    return con
 
 def db_setup():
-    con = sqlite3.connect(db_path)
+    con = get_db()
     cur = con.cursor()
 
     for path in SQL_SCHEMA_FILES:
@@ -31,10 +35,6 @@ def db_setup():
     
     con.commit()
     con.close()
-
-def get_db():
-    con = sqlite3.connect(db_path)
-    return con
 
 #Register and Login functions
 def add_user(values):

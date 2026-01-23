@@ -30,8 +30,9 @@ def create_app(test_config=None):
     from .routes import auth, main
     app.register_blueprint(auth.authorization_bp)
     app.register_blueprint(main.main_bp)
+    app.register_blueprint(main.test_bp)
 
-    db_setup(app.config['DATABASE'])
-    retrieve_words(app.config['DATABASE'], 3, 1)
+    with app.app_context():
+        db_setup()
 
     return app
