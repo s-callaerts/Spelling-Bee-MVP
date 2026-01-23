@@ -3,6 +3,7 @@ import os
 import sqlite3
 import json
 from flask import current_app
+import app.models.user as u
 
 BASE_DIR = os.getcwd()
 WORDS_PATH = os.path.join(BASE_DIR, 'app', 'data', 'words.json')
@@ -35,6 +36,16 @@ def db_setup():
     
     con.commit()
     con.close()
+
+    test_user_data = {
+        'name': 'たろう',
+        'email': 'mail@example.com',
+        'password': 'testPassword8?',
+        'grade': 3
+    }
+
+    test_user = u.generate_user(test_user_data)
+    add_user(test_user)
 
 #Register and Login functions
 def add_user(values):

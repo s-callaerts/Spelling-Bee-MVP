@@ -87,13 +87,4 @@ class User :
 
 def generate_user(payload):
     new_user = User(payload)
-    print(f"""User registered successfully!
-          user id: {new_user.uid}
-          user name: {new_user.name}
-          user email: {new_user.email}
-          user password: {new_user.password}
-          user grade: {new_user.grade}
-          user isTeacher: {new_user.isTeacher}""")
-    print(new_user)
-
     return(new_user.uid, new_user.name, new_user.email, new_user.password, new_user.grade, new_user.isTeacher)
