@@ -1,7 +1,7 @@
 from flask import session, jsonify
 import datetime
 import random
-import db
+import app.db as db
 
 class Test_attempt :
     def __init__(self, uid, grade, chapter, package, score = 0, status = 'active'):
@@ -37,6 +37,7 @@ class Test_attempt :
             uid, grade, chapter, score, status = attempt_data
             attempt = cls(uid, grade, chapter, package, score, status)
             attempt.attempt_id = attempt_id
+            
             return attempt
         else:
             print('No attempt data')
@@ -99,15 +100,26 @@ class Test_attempt :
 
     
     def validate_answer(self, input):
-        self.last_activity = None
+        self.last_activity = datetime.datetime.utcnow()
+        active_word = db.check_active_word(self.attempt_id)
+
+        if active_word is not None:
+            for word in self.word_list:
+                if word['word_id'] == active_word:
+                    self.word_list.remove(word)
+                    self.current_word = word
+
         if self.current_word['english'] == input:
             self.score += 1
             db.update_content((input, 1, self.attempt_id, self.current_word['word_id']))
             db.update_test(self.attempt_id, self.last_activity, self.score)
+            self.current_word = None
             return True, ''
         else:
             db.update_content((input, 0, self.attempt_id, self.current_word['word_id']))
-            return False, self.current_word['english']
+            correct_answer = self.current_word['english']
+            self.current_word = None
+            return False, correct_answer
         
     def process_answer(self, user_input):
         is_correct, correct_answer = self.validate_answer(user_input)
@@ -123,12 +135,4 @@ class Test_attempt :
         }
 
 
-
-
-if __name__ == '__main__':
-    words = [{'japanese': '青', 'english': 'blue'},{'japanese': '赤', 'english': 'red'}, {'japanese': '黄', 'english': 'yellow'}]
-    attempt = Test_attempt(3, 1, words)
-    print(attempt.word_list)
-    print(attempt.next_word())
-    print(attempt.validate_answer('blue'))
     

@@ -1,9 +1,9 @@
 from flask import Blueprint, request, session, jsonify
-import db
+import app.db as db
 from app.routes.auth import login_required
-from models import test_attempt as t
+from app.models import test_attempt as t
 
-test_bp = Blueprint('main', __name__)
+test_bp = Blueprint('test', __name__)
 
 @test_bp.route('/test', methods=['POST'])
 @login_required

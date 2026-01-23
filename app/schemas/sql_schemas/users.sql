@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS test_content(
     test_id INTEGER REFERENCES test_history(test_id),
     word_id INTEGER REFERENCES words(word_id),
     input TEXT,
-    is_correct INTEGER NOT NULL,
-    answered INTEGER NOT NULL,
+    is_correct INTEGER,
+    answered INTEGER,
     is_active INTEGER DEFAULT 0
     --answered BOOLEAN NOT NULL
 );

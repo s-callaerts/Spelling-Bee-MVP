@@ -27,10 +27,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from .routes import auth, main
+    from .routes import auth, main, test
     app.register_blueprint(auth.authorization_bp)
     app.register_blueprint(main.main_bp)
-    app.register_blueprint(main.test_bp)
+    app.register_blueprint(test.test_bp)
 
     with app.app_context():
         db_setup()
