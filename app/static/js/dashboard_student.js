@@ -23,7 +23,7 @@ startTestBtn.addEventListener("click", () => {
         console.log(data);
         testContentSelect.classList.toggle("hidden");
         testDisplay.classList.toggle("hidden");
-        question.textContent = data.question;
+        question.textContent = data.message;
     })
     .catch((error) => {
         console.error('Error:', error);
@@ -32,18 +32,28 @@ startTestBtn.addEventListener("click", () => {
 
 submitAnswerBtn.addEventListener("click", () => {
     const payload = {answer: answer.value};
-    postJSON('/inserturlhere', (payload))
+    postJSON('/answer', (payload))
     .then(validateResponse)
     .then((data) => {
         console.log(data);
-        noticeBox.classList.toggle("hidden");
-        if(data.correct) {
-            noticeBox.textContent = "Correct!";
-        } else {
-            noticeBox.textContent = "Incorrect, the right answer is: " + data.correct_answer;
-        }
+
+        if(data.status === 'False' || data.status === 'Error') {
+            reset();
+            setNoticeBox(data.message);
+        } else if(data.status === 'Complete') {
+            userScore = data.summary['score'];
+            total = data.summary['total'];
+            reset();
+            setNoticeBox(`Test Complete! You answered ${userScore}/${total} questions correctly.`)
+        } else if(data.status === 'In Progress') {
+            if (data.correct) {
+                setNoticeBox("Correct!");
+            } else {
+                setNoticeBox(`Incorrect. The correct answer was: ${data.correct_answer}`);
+            }
         question.innerText = data.next_question;
         answer.value = '';
+        }  
     })
     .catch((error) => {
         console.error('Error:', error);
@@ -72,4 +82,16 @@ function postJSON(url, payload) {
         },
         body: JSON.stringify(payload),
     })
+}
+
+function setNoticeBox(message) {
+    noticeBox.classList.remove("hidden");
+    noticeBox.textContent = message;
+}
+
+function reset() {
+    testDisplay.classList.toggle("hidden");
+    makeTestBtn.classList.toggle("hidden");
+    question.textContent = '';
+    answer.value = '';
 }

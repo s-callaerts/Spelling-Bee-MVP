@@ -62,6 +62,7 @@ def submit_answer():
             })
         else:
             response = {
+            'status': 'In Progress',
             'correct': is_correct,
             'correct_answer': correct_answer,
             'next_question': next_question
