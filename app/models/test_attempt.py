@@ -24,7 +24,7 @@ class Test_attempt :
         
         if not questions:
             print('No unanswered questions found')
-            return False
+            return None
         else: 
             package = [
                 {'word_id': wid,
@@ -67,11 +67,15 @@ class Test_attempt :
             return False
 
     def timeout(self):
+        if self.status in ['complete', 'expired']:
+            return True
         self.expires_at = self.last_activity + datetime.timedelta(minutes=20)
         if self.expires_at < datetime.datetime.utcnow():
             self.status = 'expired'
-
-        db.close_attempt((self.last_activity, self.score, self.status, self.attempt_id))
+            db.close_attempt((self.last_activity, self.score, self.status, self.attempt_id))
+            return True
+        else:
+            return False
         
     def next_word(self):
         if not self.word_list:
@@ -105,10 +109,19 @@ class Test_attempt :
             db.update_content((input, 0, self.attempt_id, self.current_word['word_id']))
             return False, self.current_word['english']
         
-    def process_answer(self, input):
-        is_correct, correct_answer = self.validate_answer(input)
+    def process_answer(self, user_input):
+        is_correct, correct_answer = self.validate_answer(user_input)
         next_question = self.next_word()
         return is_correct, correct_answer, next_question
+    
+    def get_summary(self):
+        total = db.get_total(self.attempt_id)
+
+        return {
+            'score': self.score,
+            'total': total
+        }
+
 
 
 

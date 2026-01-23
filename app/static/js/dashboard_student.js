@@ -37,8 +37,12 @@ submitAnswerBtn.addEventListener("click", () => {
     .then((data) => {
         console.log(data);
         noticeBox.classList.toggle("hidden");
-        noticeBox.textContent = data.message;
-        question.innerText = data.question;
+        if(data.correct) {
+            noticeBox.textContent = "Correct!";
+        } else {
+            noticeBox.textContent = "Incorrect, the right answer is: " + data.correct_answer;
+        }
+        question.innerText = data.next_question;
         answer.value = '';
     })
     .catch((error) => {

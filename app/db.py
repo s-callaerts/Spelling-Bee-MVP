@@ -239,6 +239,20 @@ def revive_attempt(test_id):
     attempt_values = get_attempt_values(test_id)
     con.close()
     return questions, attempt_values
+
+def get_total(test_id):
+    con = get_db()
+    cur = con.cursor()
+    sql = """SELECT COUNT(word_id) FROM test_content WHERE test_id = ?;"""
+
+    try:
+        cur.execute(sql, (test_id,))
+        result = cur.fetchone()
+        con.close()
+        return result[0] if result else 0
+    except sqlite3.Error as e:
+        print("Error retrieving total: ", e)
+        raise
     
 
 def close_attempt(values):
