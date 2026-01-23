@@ -67,7 +67,7 @@ submitAnswerBtn.addEventListener("click", () => {
 })
 
 answer.addEventListener("keydown", (e) => {
-    if (e === "Enter") {
+    if (e.key === "Enter") {
         if(!noticeBox.classList.contains("hidden")) return;
         if(answer.disabled) return;
         
