@@ -7,7 +7,7 @@ class Test_attempt :
     def __init__(self, uid, grade, chapter, package, score = 0, status = 'active'):
         self.uid = uid
         self.status = status
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.datetime.utcnow()
         self._last_activity = self.timestamp
         self.expires_at = None
         self.grade = grade
@@ -26,11 +26,16 @@ class Test_attempt :
             print('No unanswered questions found')
             return False
         else: 
-            package = [{question.question_id: {'japanese': question.japanese, 'english': question.english}} for question in questions]
+            package = [
+                {'word_id': wid,
+                'japanese': jap, 
+                'english': en
+                }
+                for (wid, jap, en) in questions]
         
         if attempt_data:
-            uid, started_at, last_activity, grade, chapter, score, status = attempt_data
-            attempt = cls(uid, grade, chapter, package, score, status, started_at, last_activity)
+            uid, grade, chapter, score, status = attempt_data
+            attempt = cls(uid, grade, chapter, package, score, status)
             attempt.attempt_id = attempt_id
             return attempt
         else:
@@ -41,48 +46,63 @@ class Test_attempt :
     @property
     def last_activity(self):
         return self._last_activity
+    
     @last_activity.setter
     def last_activity(self, value = None):
-        self._last_activity = value or datetime.utcnow()
+        self._last_activity = value or datetime.datetime.utcnow()
 
     def start_test(self):
-        attempt_id = db.add_attempt(session['db_path'], (self.uid, self.timestamp, self.last_activity, self.grade, self.chapter, self.score, self.status))
+        attempt_id = db.add_attempt((self.uid, self.timestamp, self.last_activity, self.grade, self.chapter, self.score, self.status))
+
+        rows = [
+            (attempt_id, word['word_id'], None, 0)
+            for word in self.word_list
+        ]
         
         if attempt_id:
+            db.insert_content(rows)
             self.attempt_id = attempt_id
             return True
         else:
             return False
 
     def timeout(self):
-        self.expires_at = self.last_activity + 20 * 60
-        if self.expires_at < datetime.utcnow():
+        self.expires_at = self.last_activity + datetime.timedelta(minutes=20)
+        if self.expires_at < datetime.datetime.utcnow():
             self.status = 'expired'
 
-        db.close_attempt(session['db_path'], (self.score, self.status))
-
+        db.close_attempt((self.last_activity, self.score, self.status, self.attempt_id))
         
     def next_word(self):
-
-        if len(self.word_list) > 0:
-            self.current_word = self.word_list.pop()
-            return self.current_word['japanese']
-        else:
+        if not self.word_list:
             self.current_word = None
             self.status = 'complete'
-            db.close_attempt(session['db_path'], (self.score, self.status, self.attempt_id))
+            db.close_attempt((self.last_activity, self.score, self.status, self.attempt_id))
             return 'Test Complete!'
+
+        active_word = db.check_active_word(self.attempt_id)
+
+        if active_word is not None:
+            for word in self.word_list:
+                if word['word_id'] == active_word:
+                    self.word_list.remove(word)
+                    self.current_word = word
+                    return self.current_word['japanese']
+        else:
+            self.current_word = self.word_list.pop()
+            db.set_active(self.attempt_id, self.current_word['word_id'])
+            return self.current_word['japanese']
 
     
     def validate_answer(self, input):
+        self.last_activity = None
         if self.current_word['english'] == input:
             self.score += 1
-            self.last_activity()
-            db.update_content(session['db_path'], (self.attempt_id, self.current_word['japanese'], self.current_word['english'], input, 1))
+            db.update_content((input, 1, self.attempt_id, self.current_word['word_id']))
+            db.update_test(self.attempt_id, self.last_activity, self.score)
             return True
         else:
-            self.last_activity()
-            db.update_content(session['db_path'] (self.attempt_id, self.current_word['japanese'], self.current_word['english'], input, 0))
+            db.update_content((input, 0, self.attempt_id, self.current_word['word_id']))
             return False, self.current_word['english']
 
 

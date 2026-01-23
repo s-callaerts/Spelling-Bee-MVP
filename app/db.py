@@ -80,16 +80,23 @@ def retrieve_words(grade, chapter):
     try:
         con = get_db()
         cur = con.cursor()
-        sql = "SELECT word_id FROM words WHERE grade = ? AND chapter = ?"
+        sql = "SELECT word_id, japanese, english FROM words WHERE grade = ? AND chapter = ?"
 
         cur.execute(sql, (grade, chapter))
         result = cur.fetchall()
         print(result)
+        package = [
+            {'word_id': id,
+             'japanese': jp,
+             'english': eng
+             }
+             for (id, jp, eng) in result
+             ]
         con.close()
 
-        if result:
-            print(result)
-            return result
+        if package:
+            print(package)
+            return package
     
     except sqlite3.Error as e:
         print('Problem retrieving data:', e)
@@ -106,20 +113,62 @@ def add_attempt(values: tuple):
     except sqlite3.Error as e:
         print("Error adding attempt:", e)
         raise
-    
-    uid, timestamp, *rest = values
 
     try:
     #return test_id to store in session for rehydrating
-        sql2 = """SELECT test_id FROM test_history WHERE uid = ? AND timestamp = ?;"""
-        cur.execute(sql2, (uid, timestamp))
-        attempt_id = cur.fetchone()[0]
+        attempt_id = cur.lastrowid
         con.commit()
         con.close()
 
         return attempt_id
     except sqlite3.Error as e:
         print("Error retrieving id:", e)
+        raise
+
+def insert_content(words):
+    """Insert initial test content into table"""
+    con = get_db()
+    cur = con.cursor()
+    sql = """INSERT INTO test_content(test_id, word_id, is_correct, answered)
+    VALUES (?, ?, ?, ?);"""
+
+    try:
+        cur.executemany(sql, words)
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.Error as e:
+        print("Error constructing test content:", e)
+        raise
+
+def check_active_word(test_id):
+    """check for active word to avoid refresh reshuffle"""
+    con = get_db()
+    cur = con.cursor()
+    sql = """SELECT word_id FROM test_content WHERE test_id = ? AND is_active = 1;"""
+
+    try:
+        cur.execute(sql, (test_id,))
+        row = cur.fetchone()
+        con.close()
+        return row[0] if row else None
+        
+    except sqlite3.Error as e:
+        print("Error checking for active word:", e)
+        raise
+
+def set_active(test_id, word_id):
+    con = get_db()
+    cur = con.cursor()
+    sql = """UPDATE test_content SET is_active = 1 WHERE test_id = ? AND word_id = ?;"""
+
+    try:
+        cur.execute(sql, (test_id, word_id))
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.Error as e:
+        print("Error setting active word:", e)
         raise
 
 def update_test(test_id, last_activity, score):
@@ -145,7 +194,7 @@ def update_content(entry):
     # should be used in tandem with update_test
     con = get_db()
     cur = con.cursor()
-    sql = """UPDATE test_content SET input = ?, is_correct = ?, answered = ? WHERE test_id = ? AND question_id = ?"""
+    sql = """UPDATE test_content SET input = ?, is_correct = ?, answered = 1 , is_active = 0 WHERE test_id = ? AND word_id = ?"""
         
     try:
         cur.execute(sql, entry)
@@ -175,7 +224,7 @@ def revive_attempt(test_id):
             raise
     
     def get_attempt_values(test_id):
-        sql = """SELECT uid, started_at, last_activity, grade, chapter, score, status 
+        sql = """SELECT uid, grade, chapter, score, status 
         FROM test_history WHERE test_id = ?;"""
 
         try:
@@ -186,10 +235,10 @@ def revive_attempt(test_id):
             print('Error retrieving attempt values:', e)
             raise
     
-    con.close()
     questions = get_question(test_id)
     attempt_values = get_attempt_values(test_id)
-    return (questions, attempt_values)
+    con.close()
+    return questions, attempt_values
     
 
 def close_attempt(values):
