@@ -100,10 +100,16 @@ class Test_attempt :
             self.score += 1
             db.update_content((input, 1, self.attempt_id, self.current_word['word_id']))
             db.update_test(self.attempt_id, self.last_activity, self.score)
-            return True
+            return True, ''
         else:
             db.update_content((input, 0, self.attempt_id, self.current_word['word_id']))
             return False, self.current_word['english']
+        
+    def process_answer(self, input):
+        is_correct, correct_answer = self.validate_answer(input)
+        next_question = self.next_word()
+        return is_correct, correct_answer, next_question
+
 
 
 if __name__ == '__main__':

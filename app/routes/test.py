@@ -1,7 +1,7 @@
 from flask import Blueprint, request, session, jsonify
 import db
 from app.routes.auth import login_required
-from models import test_attempt
+from models import test_attempt as t
 
 test_bp = Blueprint('main', __name__)
 
@@ -21,8 +21,9 @@ def create_test():
     
     package = db.retrieve_words(grade, chapter)
 
-    attempt = test_attempt.TestAttempt(uid, grade, chapter, package)
+    attempt = t.TestAttempt(uid, grade, chapter, package)
     if attempt.start_test():
+        session['attempt_id'] = attempt.attempt_id
         first_word = attempt.next_word()
         return jsonify({'question': first_word})
     else:
@@ -38,7 +39,17 @@ def submit_answer():
         return f'Error: {e}'
     
     userInput = data['answer']
-    #result = attempt.validate_answer(userInput)
+    attempt = t.TestAttempt.load_attempt(session.get('attempt_id'))
+    if not attempt:
+        return 'No active attempt', 400
+    result = attempt.process_answer(userInput)
+    if result:
+        is_correct, correct_answer, next_question = result
+        response = {
+            'correct': is_correct,
+            'correct_answer': correct_answer,
+            'next_question': next_question
+        }
     
 test_bp.route('/result', methods=['POST'])
 @login_required
