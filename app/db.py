@@ -6,8 +6,9 @@ import json
 BASE_DIR = os.getcwd()
 WORDS_PATH = os.path.join(BASE_DIR, 'app', 'data', 'words.json')
 SQL_SCHEMA_FILES = ["app/schemas/sql_schemas/users.sql"]
+db_path = os.getenv('DATABASE', 'spellingbee.db')
 
-def db_setup(db_path):
+def db_setup():
     con = sqlite3.connect(db_path)
     cur = con.cursor()
 
@@ -32,21 +33,19 @@ def db_setup(db_path):
     con.close()
 
 def get_db():
-    con = sqlite3.connect('spellingbee.db')
-    con.row_factory = sqlite3.Row
+    con = sqlite3.connect(db_path)
     return con
 
 #Register and Login functions
 def add_user(values):
     try:
-        con = sqlite3.connect("spellingbee.db")
+        con = get_db()
         cur = con.cursor()
         sql = """INSERT INTO users(uid, username, email, password, grade, isTeacher)
         VALUES (?,?,?,?,?,?)"""
 
         cur.execute(sql, values)
         con.commit()
-        con.close()
 
         print('Succesfully added user to db')
         
@@ -59,7 +58,7 @@ def add_user(values):
     
 def login_user(login_username):
     try:
-        con = sqlite3.connect("spellingbee.db")
+        con = get_db()
         cur = con.cursor()
         sql = "SELECT uid, password, isTeacher FROM users WHERE username = ?"
 
@@ -75,12 +74,13 @@ def login_user(login_username):
         print("Error retrieving user:", e)
         raise
 
-#Test functions
-def retrieve_words(db_path, grade, chapter):
+    #Test functions
+def retrieve_words(grade, chapter):
+    """Get test content from db"""
     try:
-        con = sqlite3.connect(db_path)
+        con = get_db()
         cur = con.cursor()
-        sql = "SELECT japanese, english FROM words WHERE grade = ? AND chapter = ?"
+        sql = "SELECT word_id FROM words WHERE grade = ? AND chapter = ?"
 
         cur.execute(sql, (grade, chapter))
         result = cur.fetchall()
@@ -88,22 +88,18 @@ def retrieve_words(db_path, grade, chapter):
         con.close()
 
         if result:
-            test_content = []
-            for value in result:
-                jap, eng = value
-                test_content.append(dict(japanese=jap, english=eng))
-            
-            print(test_content)
-        return test_content
+            print(result)
+            return result
     
     except sqlite3.Error as e:
         print('Problem retrieving data:', e)
         raise
 
-def add_attempt(db_path, values: tuple):
-    con = sqlite3.connect(db_path)
+def add_attempt(values: tuple):
+    #Add the test_attempt instance to db
+    con = get_db()
     cur = con.cursor()
-    sql = """INSERT INTO test_history(uid, timestamp, last_activity, grade, chapter, score, status) VALUES (?, ?, ?, ?, ?, ?, ?);"""
+    sql = """INSERT INTO test_history(uid, started_at, last_activity, grade, chapter, score, status) VALUES (?, ?, ?, ?, ?, ?, ?);"""
 
     try:
         cur.execute(sql, values)
@@ -114,7 +110,8 @@ def add_attempt(db_path, values: tuple):
     uid, timestamp, *rest = values
 
     try:
-        sql2 = """SELECT attempt_id FROM test_history WHERE uid = ? AND timestamp = ?;"""
+    #return test_id to store in session for rehydrating
+        sql2 = """SELECT test_id FROM test_history WHERE uid = ? AND timestamp = ?;"""
         cur.execute(sql2, (uid, timestamp))
         attempt_id = cur.fetchone()[0]
         con.commit()
@@ -125,16 +122,16 @@ def add_attempt(db_path, values: tuple):
         print("Error retrieving id:", e)
         raise
 
-#keep track of score and status
-def update_attempt(db_path, attempt_id, last_activity, score, status):
-    con = sqlite3.connect(db_path)
+def update_test(test_id, last_activity, score):
+    #keep track of score and status
+    con = get_db()
     cur = con.cursor()
     sql = """UPDATE test_history
-    SET last_activity = ?, score = ?, status = ?
-    WHERE attempt_id = ?;"""
+    SET last_activity = ?, score = ?
+    WHERE test_id = ?;"""
         
     try:
-        cur.execute(sql, (last_activity, score, status, attempt_id))
+        cur.execute(sql, (last_activity, score, test_id))
         con.commit()
         con.close()
         return True
@@ -143,28 +140,12 @@ def update_attempt(db_path, attempt_id, last_activity, score, status):
         print("Error updating attempt:", e)
         raise
 
-def close_attempt(db_path, values):
-    con = sqlite3.connect(db_path)
+def update_content(entry):
+    """update test content with input and is_correct, set answered to true(1) to prevent it from being included in rehydration"""
+    # should be used in tandem with update_test
+    con = get_db()
     cur = con.cursor()
-    sql = """UPDATE test_history
-    SET score = ?, status = ?
-    WHERE attempt_id = ?;"""
-        
-    try:
-        cur.execute(sql, values)
-        con.commit()
-        con.close()
-        return True
-        
-    except sqlite3.Error as e:
-        print('error:', e)
-        raise
-
-def update_content(db_path, entry):
-    con = sqlite3.connect(db_path)
-    cur = con.cursor()
-    sql = """INSERT INTO test_content(attempt_id, japanese, english, input, is_correct)
-    VALUES(?,?,?,?,?)"""
+    sql = """UPDATE test_content SET input = ?, is_correct = ?, answered = ? WHERE test_id = ? AND question_id = ?"""
         
     try:
         cur.execute(sql, entry)
@@ -176,5 +157,54 @@ def update_content(db_path, entry):
         print('error:', e)
         raise
 
+def revive_attempt(test_id):
+    con = get_db()
+    cur = con.cursor()
 
+    def get_question(test_id):
+        sql = """SELECT test_content.question_id, words.japanese, words.english FROM test_content 
+        JOIN words ON test_content.word_id = words.word_id 
+        WHERE test_content.test_id = :test_id AND test_content.answered = 0;"""
 
+        try:
+            cur.execute(sql, {'test_id': test_id})
+            result = cur.fetchall()
+            return result
+        except sqlite3.Error as e:
+            print('Error retrieving questions:', e)
+            raise
+    
+    def get_attempt_values(test_id):
+        sql = """SELECT uid, started_at, last_activity, grade, chapter, score, status 
+        FROM test_history WHERE test_id = ?;"""
+
+        try:
+            cur.execute(sql, (test_id,))
+            result = cur.fetchone()
+            return result
+        except sqlite3.Error as e:
+            print('Error retrieving attempt values:', e)
+            raise
+    
+    con.close()
+    questions = get_question(test_id)
+    attempt_values = get_attempt_values(test_id)
+    return (questions, attempt_values)
+    
+
+def close_attempt(values):
+    con = get_db()
+    cur = con.cursor()
+    sql = """UPDATE test_history
+    SET last_activity = ?, score = ?, status = ?
+    WHERE test_id = ?;"""
+        
+    try:
+        cur.execute(sql, values)
+        con.commit()
+        con.close()
+        return True
+        
+    except sqlite3.Error as e:
+        print('error:', e)
+        raise

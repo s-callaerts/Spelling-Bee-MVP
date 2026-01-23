@@ -1,5 +1,5 @@
 from flask import session, jsonify
-from datetime import datetime
+import datetime
 import random
 import db
 
@@ -20,7 +20,23 @@ class Test_attempt :
 
     @classmethod 
     def load_attempt(cls, attempt_id):
-        pass
+        questions, attempt_data = db.revive_attempt(attempt_id)
+        
+        if not questions:
+            print('No unanswered questions found')
+            return False
+        else: 
+            package = [{question.question_id: {'japanese': question.japanese, 'english': question.english}} for question in questions]
+        
+        if attempt_data:
+            uid, started_at, last_activity, grade, chapter, score, status = attempt_data
+            attempt = cls(uid, grade, chapter, package, score, status, started_at, last_activity)
+            attempt.attempt_id = attempt_id
+            return attempt
+        else:
+            print('No attempt data')
+            return False
+
 
     @property
     def last_activity(self):
