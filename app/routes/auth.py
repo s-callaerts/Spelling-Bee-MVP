@@ -96,3 +96,8 @@ def login():
     
     else:
         return json_error('username or password is incorrect', 409)
+    
+@authorization_bp.route('/logout', methods=['GET'])
+def logout():
+    session.clear()
+    return redirect(url_for('index'))

@@ -10,6 +10,13 @@ const submitAnswerBtn = document.getElementById("submit-answer");
 const noticeBox = document.getElementById("notice-box");
 const closeNoticeBtn = document.getElementById("close-notice");
 const noticeMessage = document.getElementById("message");
+const logoutBtn = document.getElementById("logout-btn");
+
+logoutBtn.addEventListener("click", () => {
+    //note to change reset function
+    reset();
+    window.location.href= "/logout"
+})
 
 makeTestBtn.addEventListener("click", () => {
     makeTestBtn.classList.toggle("hidden");
@@ -117,6 +124,7 @@ function setNoticeBox(message) {
 }
 
 function reset() {
+    //change toggle to add or remove
     testDisplay.classList.toggle("hidden");
     makeTestBtn.classList.toggle("hidden");
     question.textContent = '';
