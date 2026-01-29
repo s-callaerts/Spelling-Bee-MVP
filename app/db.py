@@ -282,3 +282,21 @@ def close_attempt(values):
     except sqlite3.Error as e:
         print('error:', e)
         raise
+
+def get_active_classrooms(teacher_id):
+    con = get_db()
+    cur = con.cursor()
+    sql = """SELECT c.name FROM classrooms c
+    JOIN classroom_run cr ON cr.classroom_id = c.classroom_id
+    JOIN classroom_run_teachers crt ON crt.classroom_run_id = cr.classroom_run_id
+    WHERE crt.teacher_id = ? AND cr.status = 'active';"""
+
+    try:
+        cur.execute(sql, (teacher_id,))
+        result = cur.fetchall()
+        con.close()
+        classrooms = [row[0] for row in result]
+        return classrooms
+    except sqlite3.Error as e:
+        print("Error retrieving active classrooms: ", e)
+        raise
