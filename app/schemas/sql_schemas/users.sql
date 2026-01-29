@@ -1,9 +1,14 @@
 --CREATE DATABASE IF NOT EXISTS spellingbee;
+--drop table only for testing, remove on deployment
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS words;
 DROP TABLE IF EXISTS test_history;
 DROP TABLE IF EXISTS test_content;
---drop table only for testing, remove on deployment
+DROP TABLE IF EXISTS classroom;
+DROP TABLE IF EXISTS classroom_run;
+DROP TABLE IF EXISTS classroom_run_teacher;
+DROP TABLE IF EXISTS classroom_run_students;
+
 
 PRAGMA foreign_keys = ON;
 
@@ -46,3 +51,31 @@ CREATE TABLE IF NOT EXISTS test_content(
     is_active INTEGER DEFAULT 0
     --answered BOOLEAN NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS classroom(
+    class_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_name TEXT NOT NULL,
+    teacher_id TEXT NOT NULL REFERENCES users(uid)
+);
+
+CREATE TABLE IF NOT EXISTS classroom_run(
+    run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id INTEGER NOT NULL REFERENCES classroom(class_id),
+    started_at VARCHAR(60) NOT NULL,
+    status TEXT NOT NULL
+);
+CREATE INDEX idx_classroom_run_status ON classroom_run(class_id, status);
+
+CREATE TABLE IF NOT EXISTS classroom_run_teacher(
+    cr_id TEXT NOT NULL REFERENCES classroom_run(run_id),
+    teacher_id TEXT NOT NUL REFERENCES users(uid),
+    PRIMARY KEY (cr_id, teacher_id)
+);
+CREATE INDEX idx_crt_teacher_run ON classroom_run_teacher(cr_id, teacher_id);
+
+CREATE TABLE IF NOT EXISTS classroom_run_students(
+    cr_id TEXT NOT NULL REFERENCES classroom_run(run_id),
+    student_id TEXT NOT NULL REFERENCES users(uid),
+    PRIMARY KEY (cr_id, student_id)
+);
+CREATE INDEX idx_crs_student_run ON classroom_run_students(cr_id, student_id);
