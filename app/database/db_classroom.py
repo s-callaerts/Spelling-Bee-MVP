@@ -15,6 +15,10 @@ def create_classroom(teacher_id):
     #add an entry into the classroom tables
     pass
 
+def retrieve_classroom(teacher_id):
+    #retrieve class_id, cr_id, students from db
+    pass
+
 def set_classroom_status(status_input):
     #change the classroom status to input 
     pass
