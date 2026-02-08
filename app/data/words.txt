@@ -1,0 +1,33 @@
+5,1
+カバン,bag
+バット,bat
+グローブ,glove
+ラケット,racket
+サッカーシューズ,soccer shoes
+傘,umbrella
+グラス,glass
+マグカップ,mug
+教科書,textbook
+漫画,comic book
+辞書,dictionary
+プレゼント,present
+宝,treasure
+シール,sticker
+切符,ticket
+腕時計,watch
+テレビ,television
+パソコン,computer
+携帯,smartphone
+タブレット,tablet
+机,desk
+椅子,chair
+布団,bed
+5,2
+英語, english
+日本語,japanese,
+書道,calligraphy
+数学,math
+科学,science
+音楽,music
+体育,P.E.
+道理,moral education
