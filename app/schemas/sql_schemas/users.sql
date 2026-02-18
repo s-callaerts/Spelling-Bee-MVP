@@ -68,7 +68,7 @@ CREATE INDEX idx_classroom_run_status ON classroom_run(class_id, status);
 
 CREATE TABLE IF NOT EXISTS classroom_run_teacher(
     cr_id TEXT NOT NULL REFERENCES classroom_run(run_id),
-    teacher_id TEXT NOT NUL REFERENCES users(uid),
+    teacher_id TEXT NOT NULL REFERENCES users(uid),
     PRIMARY KEY (cr_id, teacher_id)
 );
 CREATE INDEX idx_crt_teacher_run ON classroom_run_teacher(cr_id, teacher_id);

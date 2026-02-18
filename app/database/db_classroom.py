@@ -12,8 +12,12 @@ def get_db():
     return con
 
 def create_classroom(teacher_id):
-    #add an entry into the classroom tables
-    pass
+    #add an entry into the classroom and run tables
+    con = get_db()
+    cur = con.cursor()
+    create_class_sql = """INSERT INTO classroom(class_name, teacher_id) VALUES ?, ?;
+                          SELECT class_id FROM classroom WHERE teacher_id = ?;"""
+    create_run_sql = "INSERT INTO classroom_run(class_id) VALUES ?;"
 
 def retrieve_classroom(teacher_id):
     #retrieve class_id, cr_id, students from db
